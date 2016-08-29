@@ -117,7 +117,7 @@
     if (handle != null)
     {
 %>
-
+<br/>
 		<%		
 		if (newVersionAvailable)
 		   {
@@ -181,6 +181,23 @@
                 <%
                     }
                 %>
+    <%
+        String creativecommons = "";
+        Metadatum[] cc = item.getMetadata("dc", "rights", "cc", Item.ANY);
+        Metadatum[] ccv = item.getMetadata("dc", "rights", "ccversion", Item.ANY);
+        if (cc.length != 0) {
+            creativecommons = cc[0].value;
+        }
+        if (ccv.length != 0) {
+            creativecommons += "/" + ccv[0].value;
+        }
+        if (creativecommons != "") {
+    %>
+                    <div class="well"><fmt:message key="jsp.display-item.creativecommons"/>
+                    <a href="https://creativecommons.org/licenses/<%= creativecommons %>"><img src="https://licensebuttons.net/l/<%= creativecommons %>/88x31.png" alt="<%= creativecommons %>" /></a></div>
+    <%
+        }
+    %>
 <%
         if (admin_button)  // admin edit button
         { %>
@@ -370,22 +387,4 @@
     }
 %>
 <br/>
-    <%-- Create Commons Link --%>
-<%
-    if (cc_url != null)
-    {
-%>
-    <p class="submitFormHelp alert alert-info"><fmt:message key="jsp.display-item.text3"/> <a href="<%= cc_url %>"><fmt:message key="jsp.display-item.license"/></a>
-    <a href="<%= cc_url %>"><img src="<%= request.getContextPath() %>/image/cc-somerights.gif" border="0" alt="Creative Commons" style="margin-top: -5px;" class="pull-right"/></a>
-    </p>
-    <!--
-    <%= cc_rdf %>
-    -->
-<%
-    } else {
-%>
-    <p class="submitFormHelp alert alert-info"><fmt:message key="jsp.display-item.copyright"/></p>
-<%
-    } 
-%>    
 </dspace:layout>
