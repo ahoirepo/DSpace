@@ -483,17 +483,33 @@
     <servlet-name>version-history</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.VersionHistoryServlet</servlet-class>
   </servlet>
-  
+
   <servlet>
     <servlet-name>request-item</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.RequestItemServlet</servlet-class>
   </servlet>
-    	
+
   <servlet-mapping>
     <servlet-name>shibboleth-login</servlet-name>
     <url-pattern>/shibboleth-login</url-pattern>
   </servlet-mapping>
- 
+
+   <!-- BibTeX Export by ZBW -->
+   <servlet>
+         <servlet-name>bibtexexport</servlet-name>
+         <servlet-class>org.dspace.app.webui.servlet.BibTeXExportServlet</servlet-class>
+   </servlet>
+
+   <servlet-mapping>
+         <servlet-name>bibtexexport</servlet-name>
+         <url-pattern>/bibtexexport/*</url-pattern>
+   </servlet-mapping>
+
+   <mime-mapping>
+     <extension>bib</extension>
+     <mime-type>text/x-bibtex</mime-type>
+   </mime-mapping>
+
   <!-- Servlet Mappings -->
 
   <servlet-mapping>
