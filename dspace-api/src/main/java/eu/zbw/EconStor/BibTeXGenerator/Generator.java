@@ -152,6 +152,15 @@ public class Generator {
                                                                     , BibFields.NOTE
                                                                     , bibfields);
                                 }
+                            } else if(dCValue.qualifier.trim().equalsIgnoreCase("doi")) {
+                                if(dCValue.value != null) {
+                                    bibfields = putValueInArrayList(dCValue.value.trim()
+                                                                    , BibFields.DOI
+                                                                    , bibfields);
+                                    bibfields = putValueInArrayList("https://doi.org/" + dCValue.value.trim().substring(18)
+                                                                    , BibFields.URL
+                                                                    , bibfields);
+                                }
                             } /*
                               else if(dCValue.qualifier.trim().equalsIgnoreCase("url")) {
                                 if(dCValue.value != null) {
@@ -265,6 +274,16 @@ public class Generator {
                         }
                     }
                 }
+
+                // Customized Metadataschema
+                Metadatum[] localvalues = dsItem.getMetadata("tuhh", "publikation", "source", Item.ANY);
+                for (int j = 0; j < localvalues.length; j++) {
+                    Metadatum tuhhValue = values[j];
+                    bibfields = putValueInArrayList(tuhhValue.value.trim()
+                                        , BibFields.BOOKTITLE
+                                        , bibfields);
+                }
+
                 if(!bibfields.isEmpty()) {
                     for (Entry<BibFields, ArrayList<String>> mapE : bibfields.entrySet()) {
                         boolean first = true;
