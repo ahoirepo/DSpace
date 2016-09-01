@@ -157,7 +157,7 @@ public class Generator {
                                     bibfields = putValueInArrayList(dCValue.value.trim()
                                                                     , BibFields.DOI
                                                                     , bibfields);
-                                    bibfields = putValueInArrayList("https://doi.org/" + dCValue.value.trim().substring(18)
+                                    bibfields = putValueInArrayList("https://doi.org/" + dCValue.value.trim()
                                                                     , BibFields.URL
                                                                     , bibfields);
                                 }
@@ -276,12 +276,26 @@ public class Generator {
                 }
 
                 // Customized Metadataschema
-                Metadatum[] localvalues = dsItem.getMetadata("tuhh", "publikation", "source", Item.ANY);
+                Metadatum[] localvalues = dsItem.getMetadata("tuhh", Item.ANY, Item.ANY, Item.ANY);
                 for (int j = 0; j < localvalues.length; j++) {
-                    Metadatum tuhhValue = values[j];
-                    bibfields = putValueInArrayList(tuhhValue.value.trim()
+                    Metadatum tuhhValue = localvalues[j];
+                    if(tuhhValue.element.trim().equalsIgnoreCase("publikation")) {
+                        if(tuhhValue.qualifier != null && !tuhhValue.qualifier.isEmpty()) {
+                            if(tuhhValue.qualifier.trim().equalsIgnoreCase("source")) {
+                                bibfields = putValueInArrayList(tuhhValue.value.trim()
                                         , BibFields.BOOKTITLE
                                         , bibfields);
+                            }
+                        }
+                    } else if(tuhhValue.element.trim().equalsIgnoreCase("series")) {
+                        if(tuhhValue.qualifier != null && !tuhhValue.qualifier.isEmpty()) {
+                            if(tuhhValue.qualifier.trim().equalsIgnoreCase("name")) {
+                                bibfields = putValueInArrayList(tuhhValue.value.trim()
+                                        , BibFields.SERIES
+                                        , bibfields);
+                            }
+                        }
+                    }
                 }
 
                 if(!bibfields.isEmpty()) {
