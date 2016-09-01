@@ -1,5 +1,18 @@
-
 (function($){
+    var xx = document.getElementsByName("dc_rights_ccversion");
+    xx[0].parentNode.parentNode.hide();
+    xx[0].parentNode.parentNode.previousElementSibling.hide();
+    var yy = document.getElementsByName("dc_rights_cc");
+    yy[0].onchange = function () {
+        if (yy[0].value != "cc-null" && yy[0].value != "" && yy[0].value != "pd") {
+            xx[0].parentNode.parentNode.previousElementSibling.show();
+            xx[0].parentNode.parentNode.show();
+        }
+        else {
+            xx[0].parentNode.parentNode.previousElementSibling.hide();
+            xx[0].parentNode.parentNode.hide();
+        }
+    }
     $("div:contains('Fundref')").html(function () {
         return $(this).html().replace('Fundref', '<a href="http://fundref.org/fundref/fundref_registry.html">Fundref</a>');
     });
