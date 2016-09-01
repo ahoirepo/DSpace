@@ -183,18 +183,32 @@
                 %>
     <%
         String creativecommons = "";
+        String creativecommonslink = "";
         Metadatum[] cc = item.getMetadata("dc", "rights", "cc", Item.ANY);
         Metadatum[] ccv = item.getMetadata("dc", "rights", "ccversion", Item.ANY);
         if (cc.length != 0) {
-            creativecommons = cc[0].value;
+            creativecommonslink = creativecommons = cc[0].value;
         }
         if (ccv.length != 0) {
-            creativecommons += "/" + ccv[0].value;
+            creativecommonslink += "/" + ccv[0].value;
         }
         if (creativecommons != "") {
     %>
                     <div class="well"><fmt:message key="jsp.display-item.creativecommons"/>
-                    <a href="https://creativecommons.org/licenses/<%= creativecommons %>"><img src="https://licensebuttons.net/l/<%= creativecommons %>/88x31.png" alt="<%= creativecommons %>" /></a></div>
+                        <% if (creativecommons == "cc-null") { %>
+                            <a href="https://creativecommons.org/share-your-work/public-domain/cc0/">
+                                <img src="http://i.creativecommons.org/p/zero/1.0/88x31.png" alt="CC Null" />
+                            </a>
+                        <% } else if (creativecommons == "pd") { %>
+                            <a href="https://creativecommons.org/share-your-work/public-domain/pdm/">
+                                <img src="http://i.creativecommons.org/p/mark/1.0/88x31.png" alt="Public Domain" />
+                            </a>
+                        <% } else { %>
+                            <a href="https://creativecommons.org/licenses/<%= creativecommonslink %>">
+                                <img src="https://licensebuttons.net/l/<%= creativecommonslink %>/88x31.png" alt="<%= creativecommonslink %>" />
+                            </a>
+                        <% } %>
+                    </div>
     <%
         }
     %>
@@ -387,4 +401,28 @@
     }
 %>
 <br/>
+    <%-- Create Commons Link --%>
+<%
+        String creativecommons = "";
+        Metadatum[] cc = item.getMetadata("dc", "rights", "cc", Item.ANY);
+        Metadatum[] ccv = item.getMetadata("dc", "rights", "ccversion", Item.ANY);
+        if (cc.length != 0) {
+            creativecommons = cc[0].value;
+        }
+        if (ccv.length != 0) {
+            creativecommons += "/" + ccv[0].value;
+        }
+        if (creativecommons != "")
+    {
+%>
+    <p class="submitFormHelp alert alert-info"><fmt:message key="jsp.display-item.text3"/> <a href="https://creativecommons.org/"><fmt:message key="jsp.display-item.license"/></a>
+    <a href="https://creativecommons.org/"><img src="<%= request.getContextPath() %>/image/cc-somerights.gif" border="0" alt="Creative Commons" style="margin-top: -5px;" class="pull-right"/></a>
+    </p>
+<%
+    } else {
+%>
+    <p class="submitFormHelp alert alert-info"><fmt:message key="jsp.display-item.copyright"/></p>
+<%
+    }
+%>
 </dspace:layout>
