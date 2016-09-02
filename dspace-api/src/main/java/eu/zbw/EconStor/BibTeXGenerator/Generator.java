@@ -36,7 +36,7 @@ public class Generator {
                             DAY, DOI, EDITION, EDITOR, ISBN, ISSN, JOURNAL,
                             KEYWORDS, LANGUAGE, LOCATION, MONTH, NOTE, NUMBER,
                             PAGES, PUBLISHER, SERIES, TITLE, TYPE, URL, VOLUME,
-                            YEAR };
+                            YEAR, SCHOOL, INSTITUTION };
 
     /**
      * 
@@ -45,15 +45,19 @@ public class Generator {
      */
     public static BibTeX getBibTeXForItem(Item dsItem) {
         BibTeX myBibTex = null;
+        boolean isThesis = false;
 
         myBibTex = new BibTeX();
         if(dsItem != null) {
             Metadatum[] typeBibTeX = dsItem.getDC("type", "bibtex", Item.ANY);
             String dsType = "";
+            Metadatum[] typeTV = dsItem.getDC("type", "thesis", Item.ANY);
+            if((typeTV != null) && (typeTV.length > 0) && (typeTV[0] != null)) {
+                isThesis = true;
+            }
             if((typeBibTeX != null) && (typeBibTeX.length > 0) && (typeBibTeX[0] != null)) {
                 dsType = typeBibTeX[0].value;
             } else {
-                Metadatum[] typeTV = dsItem.getDC("type", "thesis", Item.ANY);
                 if((typeTV != null) && (typeTV.length > 0) && (typeTV[0] != null)) {
                     dsType = typeTV[0].value;
                 } else {
@@ -135,21 +139,7 @@ public class Generator {
                             } else if(dCValue.qualifier.trim().equalsIgnoreCase("issn")) {
                                 if(dCValue.value != null) {
                                     bibfields = putValueInArrayList(dCValue.value.trim()
-                                                                    , BibFields.ABSTRACT.ISSN
-                                                                    , bibfields);
-                                }
-                            } else if(dCValue.qualifier.trim().equalsIgnoreCase("uri")) {
-                                if(dCValue.value != null
-                                        && dCValue.value.trim().toLowerCase().startsWith("http://dx.doi.org")) {
-                                    bibfields = putValueInArrayList(dCValue.value.trim().substring(18)
-                                                                    , BibFields.DOI
-                                                                    , bibfields);
-                                    bibfields = putValueInArrayList("https://doi.org/" + dCValue.value.trim().substring(18)
-                                                                    , BibFields.URL
-                                                                    , bibfields);
-                                } else {
-                                    bibfields = putValueInArrayList(dCValue.value.trim()
-                                                                    , BibFields.NOTE
+                                                                    , BibFields.ISSN
                                                                     , bibfields);
                                 }
                             } else if(dCValue.qualifier.trim().equalsIgnoreCase("doi")) {
@@ -274,6 +264,32 @@ public class Generator {
                         }
                     }
                 }
+                // add Location
+                bibfields = putValueInArrayList("Hamburg"
+                            , BibFields.ADDRESS
+                            , bibfields);
+                if (dsType.equalsIgnoreCase("report") || dsType.equalsIgnoreCase("Working Paper")) {
+                    bibfields = putValueInArrayList("TU Hamburg"
+                                , BibFields.INSTITUTION
+                                , bibfields);
+                }
+                // add type field for phdthesis and masterthesis
+                if (isThesis == true) {
+                    if (dsType.equalsIgnoreCase("doctoralThesis")) {
+                        bibfields = putValueInArrayList("Dissertation"
+                                    , BibFields.TYPE
+                                    , bibfields);
+                    }
+                    if (dsType.equalsIgnoreCase("masterThesis")) {
+                        bibfields = putValueInArrayList("Master Thesis"
+                                    , BibFields.TYPE
+                                    , bibfields);
+                    }
+                    bibfields = putValueInArrayList("TU Hamburg"
+                                , BibFields.SCHOOL
+                                , bibfields);
+                }
+
 
                 // Customized Metadataschema
                 Metadatum[] localvalues = dsItem.getMetadata("tuhh", Item.ANY, Item.ANY, Item.ANY);
@@ -653,9 +669,11 @@ public class Generator {
                                 default: monthS = "";
                                     break;
                             }
+                            /* we don't want month to get set
                             bibfields = putValueInArrayList(monthS
                                                         , BibFields.MONTH
                                                         , bibfields);
+                            */
                         } catch(NumberFormatException nfex) {
                             //do nothing
                         }
