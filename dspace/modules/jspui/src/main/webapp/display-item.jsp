@@ -154,7 +154,7 @@
                         doi = doiv[0].value;
                 %>
                     <div class="well"><fmt:message key="jsp.display-item.identifier"/>
-                    <a href="http://dx.doi.org/<%= doi %>">http://dx.doi.org/<%= doi %></a></div>
+                    <a href="https://doi.org/<%= doi %>">https://doi.org/<%= doi %></a></div>
                 <%
                     }
                     else {
