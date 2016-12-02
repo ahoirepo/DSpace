@@ -166,6 +166,14 @@ for (int i = supportedLocales.length-1; i >= 0; i--)
                     fname = "static/publ_note.html";
                 }
             }
+            if (p.equals("11")) {
+                if (langcode.equals("en")) {
+                    fname = "static/depositlicense_en.html";
+                }
+                else {
+                    fname = "static/depositlicense_de.html";
+                }
+            }
             if (fname.equals(null)) {
                 if (langcode.equals("en")) {
                     fname = "static/error_en.html";
