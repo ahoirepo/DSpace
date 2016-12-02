@@ -123,6 +123,7 @@
 <%--                <li><a href="<%= request.getContextPath() %>/staticpages.jsp?incFile=3"><fmt:message key="jsp.layout.navbar-default.tubdok-documentation"/></a></li>         --%>
                 <li><a href="<%= request.getContextPath() %>/staticpages.jsp?incFile=4"><fmt:message key="jsp.layout.navbar-default.tubdok-disclaimer"/></a></li>
                 <li><a href="<%= request.getContextPath() %>/staticpages.jsp?incFile=5"><fmt:message key="jsp.layout.navbar-default.tubdok-impress"/></a></li>
+                <li><a href="<%= request.getContextPath() %>/staticpages.jsp?incFile=11"><fmt:message key="jsp.layout.navbar-default.tubdok-depositlicense"/></a></li>
              </ul>
           </li>
           <li class="<%= ( currentPage.endsWith( "/submit" ) ? "active" : "" ) %>"><a href="<%= request.getContextPath() %>/submit"><fmt:message key="jsp.layout.navbar-default.publish"/></a></li>
