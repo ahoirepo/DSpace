@@ -279,6 +279,53 @@ public class ShibAuthentication implements AuthenticationMethod
 	public int[] getSpecialGroups(Context context, HttpServletRequest request)
 	{
 		try {
+			// User has not successfuly authenticated via shibboleth.
+//			if ( request == null || 
+//					context.getCurrentUser() == null || 
+//					request.getSession().getAttribute("shib.authenticated") == null ) {
+			if ( request == null || 
+					context.getCurrentUser() == null ) {
+                                if (log.isDebugEnabled()) {
+                                        log.warn("Warning: User has not successfuly authenticated via shibboleth. Figuring out what failed:");
+                                        if (request == null) {
+                                                log.info("Warning: Request is NOT set!");
+                                        }
+                                        else {
+                                                log.info("Request is set!");
+                                        }
+                                        Enumeration<java.lang.String> requestAttribs = request.getAttributeNames();
+                                        log.info("Got the following Request attributes:");
+                                        while ( requestAttribs.hasMoreElements() ) {
+                                                String reqAttribute = requestAttribs.nextElement();
+                                                log.info("Request Attribute " + reqAttribute + ": " + request.getAttribute(reqAttribute));
+                                        }
+                                        if (context.getCurrentUser() == null) {
+                                                log.info("Warning: no current user found!");
+                                        }
+                                        else {
+                                                log.info("User is set correctly!");
+                                        }
+                                        if (request.getSession().getAttribute("shib.authenticated") == null) {
+                                                log.info("shib.authenticated attribute is NOT available");
+                                        }
+                                        else {
+                                                log.info("shib.authenticated attribute is available");
+                                        }
+                                        if (request.getSession() == null) {
+                                                log.info("Warning: Session is NOT set!");
+                                        }
+                                        else {
+                                                log.info("Session is set!");
+                                        }
+                                        log.info("Got the following Session attributes:");
+                                        Enumeration<java.lang.String> attribs = request.getSession().getAttributeNames();
+                                        while ( attribs.hasMoreElements() ) {
+                                                String attribute = attribs.nextElement();
+                                                log.info("Session Attribute " + attribute + ": " + request.getSession().getAttribute(attribute));
+                                        }
+                                }
+				return new int[0];
+			}
 			// If we have already calculated the special groups then return them.
 			if (request.getSession().getAttribute("shib.specialgroup") != null)
 			{
@@ -298,9 +345,14 @@ public class ShibAuthentication implements AuthenticationMethod
 			}
 
 			// Get the Shib supplied affiliation or use the default affiliation
-                        List<String> affiliations = new ArrayList<String>();
-                        if (context.getCurrentUser().getMetadata(roleHeader) != null) {
-				affiliations.add(context.getCurrentUser().getMetadata(roleHeader));
+			List<String> affiliations = findMultipleAttributes(request, roleHeader);
+                        // Use EPerson Metadata as a fallback
+                        String metadataRoleAttribute = ConfigurationManager.getProperty("authentication-shibboleth","metadataRoleAttribute");
+                        if ( metadataRoleAttribute != null && (affiliations == null || (affiliations != null && affiliations.isEmpty())) ) {
+                                affiliations = new ArrayList<String>();
+                                if (context.getCurrentUser().getMetadata(metadataRoleAttribute) != null) {
+                                        affiliations.add(context.getCurrentUser().getMetadata(metadataRoleAttribute));
+                                }
                         }
 			if (affiliations == null) {
 				if (defaultRoles != null)
@@ -328,8 +380,6 @@ public class ShibAuthentication implements AuthenticationMethod
 							affiliation = affiliation.substring(index+1, affiliation.length());
 						}
 					} 
-                                        // Replace spaces with underscores
-					affiliation = affiliation.replace(" ", "_");
 
 					// Get the group names
 					String groupNames = ConfigurationManager.getProperty("authentication-shibboleth","role." + affiliation);
