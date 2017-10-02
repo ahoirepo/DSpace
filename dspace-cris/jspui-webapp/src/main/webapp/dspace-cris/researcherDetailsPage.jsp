@@ -318,7 +318,7 @@
 				<c:if test="${claim && !admin && researcher.epersonID != userID}" >
 				<div class="btn-group">				
 				<c:choose>				
-					<c:when test="${!empty researcher.email.value && empty researcher.epersonID && !userHasRP}">
+					<c:when test="${(!empty researcher.email.value || !empty anagraficaObject.anagrafica4view['orcid']) && empty researcher.epersonID && !userHasRP}">
 						<span id="claim-rp" class="btn btn-primary"><i class="fa fa-user"></i>&nbsp;<fmt:message key="jsp.cris.detail.info.claimrp"/></span>
 					</c:when>
 					<c:otherwise>
