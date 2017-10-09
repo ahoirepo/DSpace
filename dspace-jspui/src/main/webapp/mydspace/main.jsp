@@ -29,7 +29,6 @@
 
 <%@ page  import="javax.servlet.jsp.jstl.fmt.LocaleSupport" %>
 
-<%@page import="org.dspace.core.ConfigurationManager"%>
 <%@ page import="org.dspace.app.webui.servlet.MyDSpaceServlet" %>
 <%@ page import="org.dspace.content.Collection" %>
 <%@ page import="org.dspace.content.DCDate" %>
@@ -46,6 +45,11 @@
 <%@page import="org.dspace.services.ConfigurationService"%>
 <%@page import="org.dspace.utils.DSpace"%>
 <%@page import="org.dspace.app.itemimport.BatchUpload"%>
+<%@page import="org.dspace.content.authority.ChoiceAuthorityManager"%>
+<%@page import="org.dspace.content.authority.Choices"%>
+<%@page import="org.dspace.content.authority.Choice"%>
+<%@page import="org.dspace.content.authority.ChoicesXMLGenerator"%>
+<%@page import="org.dspace.authority.AuthorityValueGenerator" %>
 
 <%
     EPerson user = (EPerson) request.getAttribute("mydspace.user");
@@ -81,7 +85,7 @@
     boolean displayGroupMembership = (displayMembership == null ? false : displayMembership.booleanValue());
     
     ConfigurationService configurationService = new DSpace().getConfigurationService();
-    boolean crisEnabled = ConfigurationManager.getBooleanProperty("cris", "mydspace.enabled", "enabled");
+    boolean crisEnabled = configurationService.getPropertyAsType("cris.enabled", false);
     boolean rpChangeStatusAdmin =  configurationService.getPropertyAsType("cris.rp.changestatus.admin", false);
 
     if (crisEnabled)
@@ -205,7 +209,7 @@
         	<fmt:message key="jsp.mydspace.cris.rp-status-label"/> 
         	<a href="#" class="cris-rp-status-active" data-toggle="modal" data-target="#cris-rp-change-admin"><span class="cris-rp-status-value"><fmt:message key="jsp.mydspace.cris.rp-status-active"/></span>
         	<span class="fa fa-edit"></span></a>
-        </h2>                                
+        </h2>
         <h2 id="h2-cris-rp-status-inactive" class="cris-rp-status" style="display:none;">
         	<fmt:message key="jsp.mydspace.cris.rp-status-label"/> 
         	<a href="#" class="cris-rp-status-inactive" data-toggle="modal" data-target="#cris-rp-change-inactive"><span class="cris-rp-status-value"><fmt:message key="jsp.mydspace.cris.rp-status-inactive"/></span>
@@ -218,13 +222,53 @@
         </h2>
         <h2 id="h2-cris-rp-status-undefined" class="cris-rp-status" style="display:none;">
         	<fmt:message key="jsp.mydspace.cris.rp-status-label"/> 
-        	<a href="#" class="cris-rp-status-undefined" data-toggle="modal" data-target="#cris-rp-change-undefined"><span class="cris-rp-status-value"><fmt:message key="jsp.mydspace.cris.rp-status-undefined"/></span>
-        	<span class="fa fa-edit"></span></a>
-        </h2>                                                                
-     
-<%        
-	}
- %>
+                <fmt:message key="jsp.mydspace.cris.rp-status-undefined"/>
+<!--        	<fmt:message key="jsp.mydspace.cris.rp-search-before-create"/>   --->
+
+<%
+        String field = "dc_contributor_author";
+        ChoiceAuthorityManager cam = ChoiceAuthorityManager.getManager();
+
+        String query = user.getFullName();
+        Choices result = cam.getMatches(field, query, 1, 0, 10, null);
+
+        if (result.values.length == 0) {
+            query = user.getLastName();
+            result = cam.getMatches(field, query, 1, 0, 10, null);
+        }
+
+        int suggestions = 0;
+
+        if (result.values.length > 0) {
+%>
+            <br/><fmt:message key="jsp.mydspace.cris.suggested-rps"/><br/>
+<%
+        }
+        for (int i = 0; i < result.values.length; ++i)
+        {
+            Choice mdav = result.values[i];
+            if (mdav.authority != null) {
+                 if (!mdav.authority.startsWith(AuthorityValueGenerator.GENERATE)) {
+                    suggestions++;
+%>
+                    <a href="<%= request.getContextPath() %>/cris/rp/<%= mdav.authority %>">
+                        <%= mdav.value %>
+<!--            (<%= mdav.authority %>) -->
+                    </a>
+                    <br/>
+                <% } %>
+            <% } %>
+<%      }
+        if (suggestions == 0) {
+%>
+            <fmt:message key="jsp.mydspace.cris.no-suggested-rps"/><br/>
+<%
+        }
+%>
+        <a href="#" class="cris-rp-status-undefined" data-toggle="modal" data-target="#cris-rp-change-undefined"><span class="cris-rp-status-value"><fmt:message key="jsp.mydspace.cris.create-new-rp"/></span>
+        <span class="fa fa-edit"></span></a><br />
+        </h2>
+<%  } %>
 		    <form action="<%= request.getContextPath() %>/mydspace" method="post">
 		        <input type="hidden" name="step" value="<%= MyDSpaceServlet.MAIN_PAGE %>" />
                 <input class="btn btn-success" type="submit" name="submit_new" value="<fmt:message key="jsp.mydspace.main.start.button"/>" />
