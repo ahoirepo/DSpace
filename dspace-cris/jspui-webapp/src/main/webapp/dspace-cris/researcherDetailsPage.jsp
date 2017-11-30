@@ -315,10 +315,10 @@
 				</c:if>
 
 				
-				<c:if test="${claim && !admin && researcher.epersonID != userID}" >
+				<c:if test="${claim && !admin && empty researcher.epersonID && !userHasRP}" >
 				<div class="btn-group">				
 				<c:choose>				
-					<c:when test="${!empty researcher.email.value && empty researcher.epersonID && !userHasRP}">
+					<c:when test="${(!empty researcher.email.value || !empty anagraficaObject.anagrafica4view['orcid']) && empty researcher.epersonID && !userHasRP}">
 						<span id="claim-rp" class="btn btn-primary"><i class="fa fa-user"></i>&nbsp;<fmt:message key="jsp.cris.detail.info.claimrp"/></span>
 					</c:when>
 					<c:otherwise>
@@ -370,11 +370,12 @@
   <div class="modal-dialog">
     <div class="modal-content">
     	<div class="modal-header">
-    		<%-- <button type="button" class="close" data-target="claimrp-modal" data-dismiss="modal" aria-hidden="true">
-    			<span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>--%>
+    		<%--<button type="button" class="close" data-target="claimrp-modal" data-dismiss="modal" aria-hidden="true">
+    			<span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button> --%>
 			<h4 class="modal-title"><fmt:message key="jsp.cris.detail.claimrp.title" /></h4>
 		</div>
 		<div class="modal-body">
+                <c:if test="${!empty researcher.email.value}">
 			<p><fmt:message key="jsp.cris.detail.claimrp.text1" />
 			</p>
 			<p>Emails:
@@ -407,8 +408,9 @@
       			</span>
     		</div>
      		<h4 id="claimrp-result"></h4>
+                </c:if>
 	     	<c:if test="${!empty anagraficaObject.anagrafica4view['orcid']}">
-     		<hr />
+     		<c:if test="${!empty researcher.email.value}"><hr /></c:if>
 		     	<div class="col-md-12">
 		     		<h4><fmt:message key="jsp.cris.detail.claimrp.orcid"/></h4>
 		     		      <a href="<%= request.getContextPath() %>/oauth-login">
@@ -419,10 +421,11 @@
 	     		</div>
      		</c:if>
      </div>
+
       <div class="modal-footer">
          <button type="button" class="btn btn-default" data-dismiss="modal" id="claimrp-modal-close">Close</button>
       </div>
-     
+
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
